@@ -37,3 +37,10 @@ difficulty = st.sidebar.selectbox(
     "Diffficlty",
     ["Beginner", "Intermediate", "Advanced"]
 )
+
+# Main tabs
+
+tab1,tab2,tab3,tab4 = st.tabs(
+    ["📖 Explain", "📝 Notes", "❓ MCQs", "🎯 Quiz"]
+)
+
