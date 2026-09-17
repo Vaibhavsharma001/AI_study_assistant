@@ -13,3 +13,6 @@ if not api_key:
     st.error("GEMINI_API_KEY is missing. Please add it to your .env file.")
     st.stop()
     
+client = genai.Client(api_key = api_key)
+
+    
