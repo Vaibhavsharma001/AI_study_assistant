@@ -15,7 +15,7 @@ if not api_key:
     
 client = genai.Client(api_key = api_key)
 
-    
+# Page configuration
 st.set_page_config(
     page_title = "AI Study Assistant",
     page_icon = "📚",
@@ -24,3 +24,16 @@ st.set_page_config(
 
 st.title("📚 AI Study Assistant")
 st.subheader("Learn smarter with AI — explanations, notes, MCQs and quizzes.")
+
+# Sidebar
+st.sidebar.header("⚙️ Study Settings")
+
+topic = st.sidebar.text_input(
+      "Enter your topic",
+      placeholder="e.g. Python OOP"
+)
+
+difficulty = st.sidebar.selectbox(
+    "Diffficlty",
+    ["Beginner", "Intermediate", "Advanced"]
+)
