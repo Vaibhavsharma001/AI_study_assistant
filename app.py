@@ -44,3 +44,19 @@ tab1,tab2,tab3,tab4 = st.tabs(
     ["📖 Explain", "📝 Notes", "❓ MCQs", "🎯 Quiz"]
 )
 
+def generate_response(prompt):
+    """send prompt to gemini and return the resopnse."""
+    
+    try:
+        response = client.models.generate_content(
+            model = "gemini-3.7-flash",
+            contents = prompt
+        )
+        
+        return response.text
+    
+    except Exception as e:
+        return f"ERROR:{e}"
+    
+    
+        
