@@ -56,18 +56,18 @@ def generate_response(prompt):
         return response.text
     
     except Exception as e:
-        return f"ERROR:{e}"
+        return f"Error:{e}"
     
     
 with tab1:
     st.header("📖 Topic Explanation")
-    
+
     if not topic:
         st.info("Enter a topic from the sidebar.")
-        
+
     else:
         if st.button("Explain Topic", key="explain"):
-            
+
             prompt = f"""
 You are an expert teacher.
 
@@ -90,8 +90,7 @@ Use simple language and make the explanation suitable
 for a college student.
 """
 
-    with st.spinner("Preparing explanation..."):
-        result = generate_response(prompt)
-        
-    st.markdown(result)
+            with st.spinner("Preparing explanation..."):
+                result = generate_response(prompt)
 
+            st.markdown(result)
