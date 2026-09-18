@@ -94,3 +94,42 @@ for a college student.
                 result = generate_response(prompt)
 
             st.markdown(result)
+            
+with tab2:
+    st.header("📝 Generate Study Notes")
+    
+    if not topic:
+        st.info("Enter a topic from the sidebar.")
+        
+    else:
+        
+        if st.button("Generates Notes" , key= "notes"):
+            
+            
+            prompt = f"""
+            
+            Create detailed but easy-to-revise study notes.
+
+Topic: {topic}
+Difficulty: {difficulty}
+
+Requirements:
+
+- Use clear headings
+- Use bullet points
+- Explain important definitions
+- Include important formulas if applicable
+- Include examples
+- Mention important exam points
+- Keep the notes organized
+- Add a final quick revision section
+"""
+            
+            with st.spinner("Creating notes..."):
+                result = generate_response(prompt)
+                
+            st.markdown(result)
+            
+            
+            
+                
