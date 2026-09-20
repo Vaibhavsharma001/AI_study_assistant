@@ -191,4 +191,44 @@ Questions should test understanding, not only memorization.
             st.markdown(result)
 
             
-            
+# ---------------------------------------------------
+# QUIZ TAB
+# ---------------------------------------------------
+
+with tab4:
+
+    st.header("🎯 Practice Quiz")
+
+    if not topic:
+        st.info("Enter a topic from the sidebar.")
+
+    else:
+
+        if st.button("Start Quiz", key="quiz"):
+
+            prompt = f"""
+Create a practice quiz for a college student.
+
+Topic: {topic}
+Difficulty: {difficulty}
+
+Create 5 questions.
+
+For each question provide:
+
+Question
+A
+B
+C
+D
+
+Do NOT immediately reveal the answers.
+
+At the end provide an answer key separately.
+"""
+
+            with st.spinner("Creating quiz..."):
+
+                result = generate_response(prompt)
+
+            st.markdown(result)
