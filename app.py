@@ -42,6 +42,13 @@ difficulty = st.sidebar.selectbox(
     ["Beginner", "Intermediate", "Advanced"]
 )
 
+st.sidebar.header("📄 Study Material")
+
+uploaded_file = st.sidebar.file_uploader(
+    "Upload your study material",
+    type=["txt"]
+)
+
 # Main tabs
 
 tab1,tab2,tab3,tab4 = st.tabs(
@@ -232,3 +239,28 @@ At the end provide an answer key separately.
                 result = generate_response(prompt)
 
             st.markdown(result)
+            
+            
+# ---------------------------------------------------
+# STUDY MATERIAL
+# ---------------------------------------------------
+
+st.header("📄 Uploaded Study Material")
+
+if uploaded_file is not None:
+
+    st.success(f"Uploaded: {uploaded_file.name}")
+
+    file_content = uploaded_file.read().decode("utf-8")
+
+    st.subheader("📖 Your Material")
+
+    st.text_area(
+        "Content",
+        file_content,
+        height=300
+    )
+
+else:
+
+    st.info("Upload a .txt study file from the sidebar.")
