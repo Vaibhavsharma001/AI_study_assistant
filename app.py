@@ -311,3 +311,47 @@ Study Material:
 else:
 
     st.info("Upload a .txt or .pdf study file from the sidebar.")
+    
+if uploaded_file is not None:
+    st.subheader("💬 Ask Questions")
+
+question = st.text_input(
+    "Ask a question about your study material",
+    placeholder="e.g. What is inheritance?"
+)
+
+if st.button("💬 Ask AI", key="ask_material"):
+
+    if not question:
+        st.warning("Please enter a question.")
+
+    else:
+
+        prompt = f"""
+You are an AI study assistant.
+
+Answer the student's question using ONLY the
+provided study material.
+
+If the answer cannot be found in the material,
+say:
+
+"I couldn't find this information in the uploaded material."
+
+Keep the answer simple and suitable for a college student.
+
+Study Material:
+{file_content}
+
+Student Question:
+{question}
+"""
+
+        with st.spinner("Finding the answer..."):
+
+            result = generate_response(prompt)
+
+        st.subheader("🤖 AI Answer")
+
+        st.markdown(result)
+    
