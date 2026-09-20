@@ -1,19 +1,7 @@
 import streamlit as st 
-from google import genai 
+from openai import OpenAI
 from dotenv import load_dotenv 
 import os 
-
-
-load_dotenv()
-
-api_key = os.getenv("GEMINI_API_KEY")
-
-
-if not api_key:
-    st.error("GEMINI_API_KEY is missing. Please add it to your .env file.")
-    st.stop()
-    
-client = genai.Client(api_key = api_key)
 
 # Page configuration
 st.set_page_config(
@@ -21,6 +9,22 @@ st.set_page_config(
     page_icon = "📚",
     layout = "wide"
 )
+
+
+load_dotenv()
+
+api_key = os.getenv("GROQ_API_KEY")
+
+
+if not api_key:
+    st.error("API_KEY is missing. Please add it to your .env file.")
+    st.stop()
+    
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",
+    api_key=api_key
+)
+
 
 st.title("📚 AI Study Assistant")
 st.subheader("Learn smarter with AI — explanations, notes, MCQs and quizzes.")
@@ -34,7 +38,7 @@ topic = st.sidebar.text_input(
 )
 
 difficulty = st.sidebar.selectbox(
-    "Diffficlty",
+    "Diffficulty",
     ["Beginner", "Intermediate", "Advanced"]
 )
 
@@ -45,15 +49,20 @@ tab1,tab2,tab3,tab4 = st.tabs(
 )
 
 def generate_response(prompt):
-    """send prompt to gemini and return the resopnse."""
+    """send prompt to groq and return the resopnse."""
     
     try:
-        response = client.models.generate_content(
-            model = "gemini-3.7-flash",
-            contents = prompt
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+          messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
-        
-        return response.text
+
+        return response.choices[0].message.content
     
     except Exception as e:
         return f"Error:{e}"
@@ -132,4 +141,54 @@ Requirements:
             
             
             
-                
+# ---------------------------------------------------
+# MCQ TAB
+# ---------------------------------------------------
+
+with tab3:
+
+    st.header("❓ Multiple Choice Questions")
+
+    if not topic:
+        st.info("Enter a topic from the sidebar.")
+
+    else:
+
+        number_of_questions = st.slider(
+            "Number of questions",
+            min_value=3,
+            max_value=10,
+            value=5
+        )
+
+        if st.button("Generate MCQs", key="mcq"):
+
+            prompt = f"""
+Create {number_of_questions} multiple-choice questions.
+
+Topic: {topic}
+Difficulty: {difficulty}
+
+For every question provide:
+
+Question:
+A)
+B)
+C)
+D)
+
+Correct Answer:
+Explanation:
+
+Make sure the correct answer is clearly identified.
+Questions should test understanding, not only memorization.
+"""
+
+            with st.spinner("Generating questions..."):
+
+                result = generate_response(prompt)
+
+            st.markdown(result)
+
+            
+            
