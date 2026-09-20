@@ -1,6 +1,7 @@
 import streamlit as st 
 from openai import OpenAI
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+from pypdf import PdfReader 
 import os 
 
 # Page configuration
@@ -46,7 +47,7 @@ st.sidebar.header("📄 Study Material")
 
 uploaded_file = st.sidebar.file_uploader(
     "Upload your study material",
-    type=["txt"]
+    type=["txt","pdf"]
 )
 
 # Main tabs
@@ -240,7 +241,6 @@ At the end provide an answer key separately.
 
             st.markdown(result)
             
-            
 # ---------------------------------------------------
 # STUDY MATERIAL
 # ---------------------------------------------------
@@ -251,16 +251,63 @@ if uploaded_file is not None:
 
     st.success(f"Uploaded: {uploaded_file.name}")
 
-    file_content = uploaded_file.read().decode("utf-8")
+    if uploaded_file.name.endswith(".txt"):
+
+        file_content = uploaded_file.read().decode("utf-8")
+
+    elif uploaded_file.name.endswith(".pdf"):
+
+        pdf_reader = PdfReader(uploaded_file)
+
+        file_content = ""
+
+        for page in pdf_reader.pages:
+
+            text = page.extract_text()
+
+            if text:
+                file_content += text + "\n"
 
     st.subheader("📖 Your Material")
 
     st.text_area(
-        "Content",
+        "Extracted Content",
         file_content,
-        height=300
+        height=400
     )
+
+    if st.button("🤖 Summarize Material", key="summarize_material"):
+
+        prompt = f"""
+You are an expert study assistant.
+
+Analyze the following study material.
+
+Create a clear and easy-to-revise summary for a college student.
+
+Requirements:
+
+- Identify the main concepts
+- Explain important definitions
+- Highlight important points
+- Use bullet points
+- Include important examples
+- Keep the language simple
+- End with a quick revision section
+
+Study Material:
+
+{file_content}
+"""
+
+        with st.spinner("Analyzing your study material..."):
+
+            result = generate_response(prompt)
+
+        st.subheader("🤖 AI Summary")
+
+        st.markdown(result)
 
 else:
 
-    st.info("Upload a .txt study file from the sidebar.")
+    st.info("Upload a .txt or .pdf study file from the sidebar.")
