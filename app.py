@@ -266,94 +266,174 @@ if "quiz_data" in st.session_state:
         st.write(question["question"])
 
         st.radio(
-    "Choose your answer:",
-    question["options"],
-    index=None,
-    key=f"question_{i}"
-)
-        
-        
-if st.button("🏆 Submit Quiz", key="submit_quiz"):
+            "Choose your answer:",
+            question["options"],
+            index=None,
+            key=f"question_{i}"
+        )
 
-    score = 0
-    unanswered = 0
+    if st.button("🏆 Submit Quiz", key="submit_quiz"):
 
-    for i, question in enumerate(
-        st.session_state.quiz_data["questions"]
+        score = 0
+        unanswered = 0
+
+        for i, question in enumerate(
+            st.session_state.quiz_data["questions"]
+        ):
+
+            selected_answer = st.session_state.get(
+                f"question_{i}"
+            )
+
+            correct_answer = question["answer"]
+
+            if selected_answer is None:
+                unanswered += 1
+                st.warning(
+                    f"Question {i + 1}: Not answered ⚠️"
+                )
+
+            elif selected_answer == correct_answer:
+                score += 1
+                st.success(
+                    f"Question {i + 1}: Correct! ✅"
+                )
+
+            else:
+                st.error(
+                    f"Question {i + 1}: Wrong ❌"
+                )
+
+                st.write(
+                    f"Correct answer: **{correct_answer}**"
+                )
+
+        total_questions = len(
+            st.session_state.quiz_data["questions"]
+        )
+
+        percentage = (
+            score / total_questions
+        ) * 100
+
+        quiz_result = {
+            "topic": topic,
+            "score": score,
+            "total": total_questions,
+            "percentage": percentage
+        }
+
+        st.session_state.quiz_history.append(quiz_result)
+
+        st.subheader("🏆 Your Result")
+
+        st.write(
+            f"### Score: {score}/{total_questions}"
+        )
+
+        st.write(
+            f"### Percentage: {percentage:.1f}%"
+        )
+
+        if unanswered > 0:
+            st.info(
+                f"You left {unanswered} question(s) unanswered."
+            )
+
+    if st.button("🔄 Retry Quiz", key="retry_quiz"):
+
+        del st.session_state.quiz_data
+
+        st.rerun()
+        
+        # ---------------------------------------------------
+# QUIZ HISTORY
+# ---------------------------------------------------
+
+st.header("📊 Quiz History")
+
+if not st.session_state.quiz_history:
+
+    st.info("No quiz attempts yet.")
+
+else:
+
+    for i, result in enumerate(
+        st.session_state.quiz_history,
+        start=1
     ):
 
-        selected_answer = st.session_state.get(
-            f"question_{i}"
-        )
-
-        correct_answer = question["answer"]
-
-        # Check unanswered question
-        if selected_answer is None:
-
-            unanswered += 1
-
-            st.warning(
-                f"Question {i + 1}: Not answered ⚠️"
-            )
-
-        # Check correct answer
-        elif selected_answer == correct_answer:
-
-            score += 1
-
-            st.success(
-                f"Question {i + 1}: Correct! ✅"
-            )
-
-        # Wrong answer
-        else:
-
-            st.error(
-                f"Question {i + 1}: Wrong ❌"
-            )
-
-            st.write(
-                f"Correct answer: **{correct_answer}**"
-            )
-
-    total_questions = len(
-        st.session_state.quiz_data["questions"]
-    )
-
-    percentage = (
-        score / total_questions
-    ) * 100
-    
-    quiz_result = {
-    "topic": topic,
-    "score": score,
-    "total": total_questions,
-    "percentage": percentage
-}
-
-    st.session_state.quiz_history.append(quiz_result)
-    
-
-    st.subheader("🏆 Your Result")
-
-    st.write(
-        f"### Score: {score}/{total_questions}"
-    )
-
-    st.write(
-        f"### Percentage: {percentage:.1f}%"
-    )
-
-    if unanswered > 0:
-
-        st.info(
-            f"You left {unanswered} question(s) unanswered."
+        st.write(
+            f"**{i}. {result['topic']}** — "
+            f"{result['score']}/{result['total']} "
+            f"({result['percentage']:.1f}%)"
         )
         
-    if st.button("🔄 Retry Quiz", key="retry_quiz"):
-        del st.session_state.quiz_data
-        st.rerun()
+        
+        # ---------------------------------------------------
+# STUDY DASHBOARD
+# ---------------------------------------------------
+
+st.header("📈 Study Dashboard")
+
+if not st.session_state.quiz_history:
+
+    st.info("Complete a quiz to see your study statistics.")
+
+else:
+
+    total_quizzes = len(
+        st.session_state.quiz_history
+    )
+
+    total_questions = sum(
+        result["total"]
+        for result in st.session_state.quiz_history
+    )
+
+    total_correct = sum(
+        result["score"]
+        for result in st.session_state.quiz_history
+    )
+
+    average_score = (
+        total_correct / total_questions
+    ) * 100
+
+    best_score = max(
+        result["percentage"]
+        for result in st.session_state.quiz_history
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+
+        st.metric(
+            "📚 Quizzes Completed",
+            total_quizzes
+        )
+
+    with col2:
+
+        st.metric(
+            "❓ Questions Attempted",
+            total_questions
+        )
+
+    with col3:
+
+        st.metric(
+            "📊 Average Score",
+            f"{average_score:.1f}%"
+        )
+
+    with col4:
+
+        st.metric(
+            "🏆 Best Score",
+            f"{best_score:.1f}%"
+        )
             
 # ---------------------------------------------------
 # STUDY MATERIAL
@@ -390,7 +470,14 @@ if uploaded_file is not None:
         height=400
     )
 
-    if st.button("🤖 Summarize Material", key="summarize_material"):
+    # ---------------------------------------------------
+    # SUMMARIZE MATERIAL
+    # ---------------------------------------------------
+
+    if st.button(
+        "🤖 Summarize Material",
+        key="summarize_material"
+    ):
 
         prompt = f"""
 You are an expert study assistant.
@@ -422,26 +509,26 @@ Study Material:
 
         st.markdown(result)
 
-else:
+    # ---------------------------------------------------
+    # ASK QUESTIONS
+    # ---------------------------------------------------
 
-    st.info("Upload a .txt or .pdf study file from the sidebar.")
-    
-if uploaded_file is not None:
     st.subheader("💬 Ask Questions")
 
-question = st.text_input(
-    "Ask a question about your study material",
-    placeholder="e.g. What is inheritance?"
-)
+    question = st.text_input(
+        "Ask a question about your study material",
+        placeholder="e.g. What is inheritance?"
+    )
 
-if st.button("💬 Ask AI", key="ask_material"):
+    if st.button("💬 Ask AI", key="ask_material"):
 
-    if not question:
-        st.warning("Please enter a question.")
+        if not question:
 
-    else:
+            st.warning("Please enter a question.")
 
-        prompt = f"""
+        else:
+
+            prompt = f"""
 You are an AI study assistant.
 
 Answer the student's question using ONLY the
@@ -455,18 +542,22 @@ say:
 Keep the answer simple and suitable for a college student.
 
 Study Material:
+
 {file_content}
 
 Student Question:
+
 {question}
 """
 
-        with st.spinner("Finding the answer..."):
+            with st.spinner("Finding the answer..."):
 
-            result = generate_response(prompt)
+                result = generate_response(prompt)
 
-        st.subheader("🤖 AI Answer")
+            st.subheader("🤖 AI Answer")
 
-        st.markdown(result)
-        
-    
+            st.markdown(result)
+
+else:
+
+    st.info("Upload a .txt or .pdf study file from the sidebar.")
