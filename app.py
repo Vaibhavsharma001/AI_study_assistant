@@ -270,42 +270,72 @@ if "quiz_data" in st.session_state:
 )
         
         
-    if st.button("🏆 Submit Quiz", key="submit_quiz"):
+if st.button("🏆 Submit Quiz", key="submit_quiz"):
 
-        score = 0
+    score = 0
+    unanswered = 0
 
-        for i, question in enumerate(
-            st.session_state.quiz_data["questions"]
-        ):
+    for i, question in enumerate(
+        st.session_state.quiz_data["questions"]
+    ):
 
-            selected_answer = st.session_state[
-                f"question_{i}"
-            ]
+        selected_answer = st.session_state.get(
+            f"question_{i}"
+        )
 
-            correct_answer = question["answer"]
+        correct_answer = question["answer"]
 
-            if selected_answer == correct_answer:
+        # Check unanswered question
+        if selected_answer is None:
 
-                score += 1
+            unanswered += 1
 
-                st.success(
-                    f"Question {i + 1}: Correct! ✅"
-                )
+            st.warning(
+                f"Question {i + 1}: Not answered ⚠️"
+            )
 
-            else:
+        # Check correct answer
+        elif selected_answer == correct_answer:
 
-                st.error(
-                    f"Question {i + 1}: Wrong ❌"
-                )
+            score += 1
 
-                st.write(
-                    f"Correct answer: **{correct_answer}**"
-                )
+            st.success(
+                f"Question {i + 1}: Correct! ✅"
+            )
 
-        st.subheader("🏆 Your Result")
+        # Wrong answer
+        else:
 
-        st.write(
-            f"You scored **{score}/5**"
+            st.error(
+                f"Question {i + 1}: Wrong ❌"
+            )
+
+            st.write(
+                f"Correct answer: **{correct_answer}**"
+            )
+
+    total_questions = len(
+        st.session_state.quiz_data["questions"]
+    )
+
+    percentage = (
+        score / total_questions
+    ) * 100
+
+    st.subheader("🏆 Your Result")
+
+    st.write(
+        f"### Score: {score}/{total_questions}"
+    )
+
+    st.write(
+        f"### Percentage: {percentage:.1f}%"
+    )
+
+    if unanswered > 0:
+
+        st.info(
+            f"You left {unanswered} question(s) unanswered."
         )
         
         
