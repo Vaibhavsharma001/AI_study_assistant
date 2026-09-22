@@ -338,7 +338,9 @@ if st.button("🏆 Submit Quiz", key="submit_quiz"):
             f"You left {unanswered} question(s) unanswered."
         )
         
-        
+    if st.button("🔄 Retry Quiz", key="retry_quiz"):
+        del st.session_state.quiz_data
+        st.rerun()
             
 # ---------------------------------------------------
 # STUDY MATERIAL
