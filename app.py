@@ -249,10 +249,28 @@ Important:
 """
             with st.spinner("Creating quiz..."):
                 result = generate_response(prompt)
+                
+try:
+
+    quiz_data = json.loads(result)
+
+    if "questions" not in quiz_data:
+
+        st.error("AI did not return valid quiz questions.")
+
+    else:
+
+        st.session_state.quiz_data = quiz_data
+
+except json.JSONDecodeError:
+
+    st.error(
+        "The AI returned an invalid quiz format. "
+        "Please try starting the quiz again."
+    )
             
-            quiz_data = json.loads(result)
-            st.session_state.quiz_data = quiz_data
-        
+            
+            
 if "quiz_data" in st.session_state:
 
     st.subheader("📝 Quiz")
