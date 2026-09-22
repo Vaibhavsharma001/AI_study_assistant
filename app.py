@@ -3,6 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from pypdf import PdfReader 
 import os 
+import json
 
 # Page configuration
 st.set_page_config(
@@ -198,7 +199,6 @@ Questions should test understanding, not only memorization.
 
             st.markdown(result)
 
-            
 # ---------------------------------------------------
 # QUIZ TAB
 # ---------------------------------------------------
@@ -208,38 +208,107 @@ with tab4:
     st.header("🎯 Practice Quiz")
 
     if not topic:
+
         st.info("Enter a topic from the sidebar.")
 
     else:
 
         if st.button("Start Quiz", key="quiz"):
+            
+             
 
             prompt = f"""
-Create a practice quiz for a college student.
+Create a quiz about the following topic.
 
 Topic: {topic}
 Difficulty: {difficulty}
 
-Create 5 questions.
+Create exactly 5 multiple-choice questions.
 
-For each question provide:
+Return ONLY valid JSON in this exact format:
 
-Question
-A
-B
-C
-D
+{{
+    "questions": [
+        {{
+            "question": "Question text",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "answer": "Option A"
+        }}
+    ]
+}}
 
-Do NOT immediately reveal the answers.
-
-At the end provide an answer key separately.
+Important:
+- Create exactly 5 questions.
+- Each question must have exactly 4 options.
+- The answer must exactly match one of the options.
+- Do not add markdown.
+- Do not add explanations.
 """
-
             with st.spinner("Creating quiz..."):
-
                 result = generate_response(prompt)
+            
+            quiz_data = json.loads(result)
+            st.session_state.quiz_data = quiz_data
+        
+if "quiz_data" in st.session_state:
 
-            st.markdown(result)
+    st.subheader("📝 Quiz")
+
+    for i, question in enumerate(
+        st.session_state.quiz_data["questions"]
+    ):
+
+        st.write(f"### Question {i + 1}")
+
+        st.write(question["question"])
+
+        st.radio(
+    "Choose your answer:",
+    question["options"],
+    index=None,
+    key=f"question_{i}"
+)
+        
+        
+    if st.button("🏆 Submit Quiz", key="submit_quiz"):
+
+        score = 0
+
+        for i, question in enumerate(
+            st.session_state.quiz_data["questions"]
+        ):
+
+            selected_answer = st.session_state[
+                f"question_{i}"
+            ]
+
+            correct_answer = question["answer"]
+
+            if selected_answer == correct_answer:
+
+                score += 1
+
+                st.success(
+                    f"Question {i + 1}: Correct! ✅"
+                )
+
+            else:
+
+                st.error(
+                    f"Question {i + 1}: Wrong ❌"
+                )
+
+                st.write(
+                    f"Correct answer: **{correct_answer}**"
+                )
+
+        st.subheader("🏆 Your Result")
+
+        st.write(
+            f"You scored **{score}/5**"
+        )
+        
+        
             
 # ---------------------------------------------------
 # STUDY MATERIAL
@@ -354,4 +423,5 @@ Student Question:
         st.subheader("🤖 AI Answer")
 
         st.markdown(result)
+        
     
