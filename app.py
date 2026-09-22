@@ -12,6 +12,9 @@ st.set_page_config(
     layout = "wide"
 )
 
+if "quiz_history" not in st.session_state:
+
+    st.session_state.quiz_history = []
 
 load_dotenv()
 
@@ -321,6 +324,16 @@ if st.button("🏆 Submit Quiz", key="submit_quiz"):
     percentage = (
         score / total_questions
     ) * 100
+    
+    quiz_result = {
+    "topic": topic,
+    "score": score,
+    "total": total_questions,
+    "percentage": percentage
+}
+
+    st.session_state.quiz_history.append(quiz_result)
+    
 
     st.subheader("🏆 Your Result")
 
